@@ -1,5 +1,6 @@
 # Based on course under link:
 # https://www.youtube.com/watch?v=MCVcAAoDJS8
+# for problems with updating https://stackoverflow.com/questions/77521600/fastapi-with-uvicorn-doesnt-update
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
