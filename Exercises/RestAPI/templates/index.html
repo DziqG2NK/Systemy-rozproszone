@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+    <p>
+        {{ name }}
+    </p>
+
+    <table>
+        <tr>
+            <th>Dog name</th>
+            <th>Dog type</th>
+        </tr>
+        {% for dog in dogs %}
+        <tr>
+            <td>{{dog.name}}</td>
+            <td>{{dog.type}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

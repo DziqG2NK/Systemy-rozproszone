@@ -1,16 +1,12 @@
-# This is a sample Python script.
+from fastapi import FastAPI, Request
+from fastapi.templating import Jinja2Templates
 
-# Press Ctrl+F5 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+app = FastAPI()
 
+templates = Jinja2Templates(directory="templates")
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press F9 to toggle the breakpoint.
+DOGS = [{"name": "Milo", "type": "Goldendoodle"}, {"name": "Jax", "type": "German Shepard"}]
 
-
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+@app.get("/")
+async def get_name(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request, "name": "codingwithroby", "dogs": DOGS })
