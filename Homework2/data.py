@@ -7,6 +7,7 @@ from sgp4.api import jday
 from math import atan2, sqrt, degrees
 
 satelite_location_url = "https://tle.ivanstanojevic.me/api/tle/"
+geo_api_key = "e2357fc9ddfb401bade0d477f1f0ce7e"
 
 async def get_info_from_api(url: str, params=None):
     async with httpx.AsyncClient() as httpx_client:
@@ -47,7 +48,26 @@ def convert_cords(r):
 
     return latitude_deg, longitude_deg
 
-def get_cords(orbital_params: dict):
+async def get_geo_json(latitude, longitude):
+    url = "https://api.opencagedata.com/geocode/v1/json"
+
+    geo_q = str(round(latitude, 7)) + "," + str(round(longitude, 7))
+    print(geo_q)
+
+    geo_params = {
+        "key": geo_api_key,
+        "q": geo_q,
+        "pretty": 1,
+        "no_annotations": 1
+    }
+
+    response = await get_info_from_api(url, geo_params)
+    print(response)
+    response = json.loads(response)
+    print(response)
+
+
+def get_country(orbital_params: dict):
     satellite = Satrec.twoline2rv(orbital_params["line_1"], orbital_params["line_2"])
 
     date = datetime.fromisoformat(orbital_params["date"]) + timedelta(hours=-0.75)
@@ -59,7 +79,9 @@ def get_cords(orbital_params: dict):
     latitude, longitude = convert_cords(r)
 
     print(latitude, longitude)
-    return latitude, longitude
+    result = get_geo_json(latitude, longitude)
+
+    return result
 
 # async def get_satellite_location(json_response: dict):
 
@@ -102,7 +124,9 @@ async def main():
 
     params = await get_orbital_params(25544)
 
-    get_cords(params)
+    await get_country(params)
+
+
 
 asyncio.run(main())
 # print(type((1,2)))
