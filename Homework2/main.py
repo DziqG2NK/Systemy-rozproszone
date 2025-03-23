@@ -2,9 +2,23 @@
 # http://open-notify.org/Open-Notify-API/?ref=public_apis&utm_medium=website
 # https://opencagedata.com/api#quickstart
 # https://tle.ivanstanojevic.me/#/
+# taskkill /F /IM python.exe
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
+import httpx
+
+async def get_info_from_api(url, params):
+    async with httpx.AsyncClient() as httpx_client:
+        if params is None:
+            response = await httpx_client.get(url=url, params=params)
+        elif params is not None:
+            response = await httpx_client.get(url=url, params=params)
+
+        if response.status_code != 200:
+            return {"error": "Response from iss error"}
+
+        return response.text
 
 geo_api_key = "e2357fc9ddfb401bade0d477f1f0ce7e"
 
@@ -21,6 +35,17 @@ templates = Jinja2Templates(directory="templates")
 async def get_position(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-@app.get("/gfd/")
-async def get_position(request: Request):
-    return templates.TemplateResponse("response.html", {"request": request})
+@app.get("/getJSON")
+async def get_json():
+    r = await get_info_from_api("http://api.open-notify.org/astros.json", params=None)
+    print(r)
+    return
+    # return get_info_from_api("http://api.open-notify.org/astros.json", params=None)
+
+@app.get("/getsomething")
+async def get_some():
+    r = httpx.get("http://127.0.0.1:8000/")
+    return r.text
+# @app.get("/gfd/")
+# async def get_position(request: Request):
+    # return templates.TemplateResponse("response.html", {"request": request, "satelite": })
