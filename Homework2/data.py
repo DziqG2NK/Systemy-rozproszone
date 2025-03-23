@@ -1,6 +1,11 @@
 import httpx
 import asyncio
 import json
+from datetime import datetime
+from sgp4.api import Satrec
+from sgp4.api import jday
+
+satelite_location_url = "https://tle.ivanstanojevic.me/api/tle/"
 
 async def get_info_from_api(url: str, params=None):
     async with httpx.AsyncClient() as httpx_client:
@@ -12,7 +17,25 @@ async def get_info_from_api(url: str, params=None):
 
         return response.text
 
-async def turn_response_to_json(response):
+# async def turn_response_to_json(response):
+
+async def get_orbital_params(satellite_id: int):
+    url = satelite_location_url + str(satellite_id)
+    response = await get_info_from_api(url=url)
+
+    response = json.loads(s=response)
+
+    orbital_params = {
+    "date": response["date"],
+    "line_1": response["line1"],
+    "line_2": response["line2"]
+    }
+
+    return orbital_params
+
+
+# async def get_satellite_location(json_response: dict):
+
 
 
 async def main():
@@ -21,9 +44,9 @@ async def main():
     geo_q = "52.5432379%2C+13.4142133"
 
     geo_api_url = "https://api.opencagedata.com/geocode/v1/json"
-    satelite_location_url = "https://tle.ivanstanojevic.me/api/tle/43696"
+    satelite_location_url = "https://tle.ivanstanojevic.me/api/tle/49044"
     iss_location_api_url = "http://api.open-notify.org/iss-now.json"
-    astronauts_list_url = "http://api.open-notify.org/astros.json"
+    # astronauts_list_url = "http://api.open-notify.org/astros.json"
 
     geo_params = {
         "key": geo_api_key,
@@ -37,7 +60,7 @@ async def main():
     URLS.append((geo_api_url, geo_params))
     URLS.append(satelite_location_url)
     URLS.append(iss_location_api_url)
-    URLS.append(astronauts_list_url)
+    # URLS.append(astronauts_list_url)
 
     for url in URLS:
         r = None
@@ -49,7 +72,6 @@ async def main():
             r = json.loads(r)
             print(type(r))
         print(r)
-        print(r["results"])
 
-asyncio.run(main())
+asyncio.run(get_orbital_params(25544))
 # print(type((1,2)))
