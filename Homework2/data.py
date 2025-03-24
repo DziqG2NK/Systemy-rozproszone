@@ -7,7 +7,6 @@ from fastapi import HTTPException
 from sgp4.api import Satrec
 from math import atan2, sqrt, degrees
 
-from starlette.responses import HTMLResponse
 from starlette.templating import Jinja2Templates
 
 satellite_location_url = "https://tle.ivanstanojevic.me/api/tle/"
@@ -142,7 +141,7 @@ async def data(satellite_name):
             satellite_id = 35932
 
     if satellite_id is None:
-        raise HTTPException(status_code=404, detail="Page not found")
+        raise HTTPException(status_code=404, detail="Satellite not found")
 
     params = await get_orbital_params(satellite_id)
     cords =  get_cords(params)

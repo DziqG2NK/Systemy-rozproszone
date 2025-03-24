@@ -34,4 +34,4 @@ async def get_response(request: Request, satellite_name: str=""):
 
 @app.exception_handler(HTTPException)
 async def http_exception_handler(request: Request, exception: HTTPException):
-    return templates.TemplateResponse("error.html", {"request": request, "error_code": exception.status_code}, status_code=exception.status_code)
+    return templates.TemplateResponse("error.html", {"request": request, "error_code": exception.status_code, "error_detail": exception.detail}, status_code=exception.status_code)
