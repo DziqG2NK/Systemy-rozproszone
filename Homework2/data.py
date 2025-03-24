@@ -60,8 +60,10 @@ def get_cords(orbital_params: dict):
     fr = (date.hour + date.minute / 60 + date.second / 3600) / 24
 
     e, r, v = satellite.sgp4(jd, fr)
-
-    latitude, longitude = convert_cords(r)
+    try:
+        latitude, longitude = convert_cords(r)
+    except Exception as e:
+        raise HTTPException(status_code=403, detail="Error converting coordinates")
 
     cords = {
         "latitude": latitude,
