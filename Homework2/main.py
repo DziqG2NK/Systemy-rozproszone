@@ -26,14 +26,6 @@ async def get_response(request: Request, satellite_name: str=""):
         "longitude": satellite_data["cords"]["longitude"],
     }
 
-    # if "continent" in satellite_data["region"]:
-    #     satellite["continent"] = satellite_data["region"]["continent"],
-    #     satellite["district"] = satellite_data["region"]["district"],
-    #     satellite["country"] = satellite_data["region"]["country"]
-    #
-    # elif not "continent" in satellite_data:
-    #     satellite["continent"] = satellite_data["region"]["body_of_water"]
-
     return templates.TemplateResponse("response.html", {
             "request": request,
             "satellite": satellite,

@@ -5,7 +5,8 @@ from datetime import datetime
 from sgp4.api import Satrec
 from math import atan2, sqrt, degrees
 
-satelite_location_url = "https://tle.ivanstanojevic.me/api/tle/"
+satellite_location_url = "https://tle.ivanstanojevic.me/api/tle/"
+geo_url = "https://api.opencagedata.com/geocode/v1/json"
 geo_api_key = "e2357fc9ddfb401bade0d477f1f0ce7e"
 
 async def get_info_from_api(url: str, params=None):
@@ -19,7 +20,7 @@ async def get_info_from_api(url: str, params=None):
         return response.text
 
 async def get_orbital_params(satellite_id: int):
-    url = satelite_location_url + str(satellite_id)
+    url = satellite_location_url + str(satellite_id)
     response = await get_info_from_api(url=url)
 
     response = json.loads(response)
@@ -64,8 +65,6 @@ def get_cords(orbital_params: dict):
     return cords
 
 async def get_geo_json(latitude: float, longitude: float):
-    url = "https://api.opencagedata.com/geocode/v1/json"
-
     geo_q = str(round(latitude, 7)) + "," + str(round(longitude, 7))
     print(geo_q)
 
@@ -76,7 +75,7 @@ async def get_geo_json(latitude: float, longitude: float):
         "no_annotations": 1
     }
 
-    response = await get_info_from_api(url, geo_params)
+    response = await get_info_from_api(geo_url, geo_params)
     response = json.loads(response)
 
     return response
