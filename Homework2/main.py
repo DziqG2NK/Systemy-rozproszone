@@ -4,7 +4,7 @@
 # https://tle.ivanstanojevic.me/#/
 # taskkill /F /IM python.exe
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.templating import Jinja2Templates
 from data import data
 
@@ -31,3 +31,7 @@ async def get_response(request: Request, satellite_name: str=""):
             "satellite": satellite,
             "region": satellite_data["region"]
         })
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exception: HTTPException):
+    return templates.TemplateResponse("error.html", {"request": request, "error_code": exception.status_code}, status_code=exception.status_code)

@@ -2,12 +2,19 @@ import httpx
 import asyncio
 import json
 from datetime import datetime
+
+from fastapi import HTTPException
 from sgp4.api import Satrec
 from math import atan2, sqrt, degrees
+
+from starlette.responses import HTMLResponse
+from starlette.templating import Jinja2Templates
 
 satellite_location_url = "https://tle.ivanstanojevic.me/api/tle/"
 geo_url = "https://api.opencagedata.com/geocode/v1/json"
 geo_api_key = "e2357fc9ddfb401bade0d477f1f0ce7e"
+
+templates = Jinja2Templates(directory="templates")
 
 async def get_info_from_api(url: str, params=None):
     async with httpx.AsyncClient() as httpx_client:
@@ -15,7 +22,7 @@ async def get_info_from_api(url: str, params=None):
         print(response.request)
 
         if response.status_code != 200:
-            return {"error": "Response from iss error"}
+            raise HTTPException(status_code=404, detail="Couldn't get info from API")
 
         return response.text
 
@@ -87,6 +94,7 @@ async def get_country(cords: dict):
     response = await get_geo_json(latitude, longitude)
 
     components = response["results"][0]["components"]
+    region = None
 
     if "continent" in components:
         region = {
@@ -100,6 +108,9 @@ async def get_country(cords: dict):
         region = {
             "body_of_water": components["body_of_water"]
         }
+
+    if region is None:
+        raise HTTPException(status_code=404, detail="Couldn't find region for satellite")
 
     print(region)
     return region
@@ -129,6 +140,9 @@ async def data(satellite_name):
             satellite_id = 43694
         case "SWISSCUBE":
             satellite_id = 35932
+
+    if satellite_id is None:
+        raise HTTPException(status_code=404, detail="Page not found")
 
     params = await get_orbital_params(satellite_id)
     cords =  get_cords(params)
