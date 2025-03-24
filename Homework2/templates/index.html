@@ -7,10 +7,10 @@
 </head>
 <body>
     <h1>Hello API!</h1>
-    <form>
+    <form action="/response" method="GET">
         <label>Wybierz dostępną stację kosmiczną, aby poznać jej załogę i lokację:</label>
         <br>
-        <select>
+        <select name="satellite_name">
             <option value="ISS">ISS</option>
             <option value="TIANGONG">Tiangong</option>
             <option value="LANDSAT 9">Landsat 9</option>
@@ -18,7 +18,7 @@
             <option value="PROXIMA II">Proxima II</option>
         </select>
         <br>
-        <input type="SUBMIT" value="Pokaż">
+        <input type="SUBMIT" value="Pokaż" formaction="/response">
     </form>
 </body>
 </html>

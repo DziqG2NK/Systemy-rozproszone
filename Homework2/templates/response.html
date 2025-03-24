@@ -5,19 +5,9 @@
     <title>Response</title>
 </head>
 <body>
-    <h2>Satelita: {{ satelite.name }}</h2>
-    <br>
-    {% if astronauts|length > 0 %}
-    <h3>Załoga:</h3>
-    <ol>
-        {% for name in astronauts %}
-            <li>{{ name }}</li>
-        {% endfor %}
-    </ol>
-    {% endif %}
-    <br>
-    <h2>Obecne położenie satelity: {{ satelite.latitude }}, {{ satelite.longitude }}</h2>
-    <p>Satelita znajduje się obecnie nad: {{ country }}</p>
+    <h2>Satelita: {{ satellite.name }}</h2>
+    <h2>Obecne położenie satelity: {{ satellite.latitude }}, {{ satellite.longitude }}</h2>
+    <p>Satelita znajduje się obecnie nad: {{ satellite.country }}</p>
 
 </body>
 </html>
