@@ -7,7 +7,9 @@
 <body>
     <h2>Satelita: {{ satellite.name }}</h2>
     <h2>Obecne położenie satelity: {{ satellite.latitude }}, {{ satellite.longitude }}</h2>
-    <p>Satelita znajduje się obecnie nad: {{ satellite.country }}</p>
+    <p>Satelita znajduje się obecnie nad:
+    <br/>
+    {{ satellite.country }}, {{ satellite.district }}, <b>{{ satellite.continent }}</b></p>
 
 </body>
 </html>

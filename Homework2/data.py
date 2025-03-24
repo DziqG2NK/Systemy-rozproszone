@@ -1,9 +1,8 @@
 import httpx
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 from sgp4.api import Satrec
-from sgp4.api import jday
 from math import atan2, sqrt, degrees
 
 satelite_location_url = "https://tle.ivanstanojevic.me/api/tle/"
@@ -18,8 +17,6 @@ async def get_info_from_api(url: str, params=None):
             return {"error": "Response from iss error"}
 
         return response.text
-
-# async def turn_response_to_json(response):
 
 async def get_orbital_params(satellite_id: int):
     url = satelite_location_url + str(satellite_id)
@@ -48,7 +45,25 @@ def convert_cords(r):
 
     return latitude_deg, longitude_deg
 
-async def get_geo_json(latitude, longitude):
+def get_cords(orbital_params: dict):
+    satellite = Satrec.twoline2rv(orbital_params["line_1"], orbital_params["line_2"])
+
+    date = datetime.fromisoformat(orbital_params["date"])
+    jd = date.toordinal() + 1721424.5 + (date.hour + date.minute / 60 + date.second / 3600) / 24
+    fr = (date.hour + date.minute / 60 + date.second / 3600) / 24
+
+    e, r, v = satellite.sgp4(jd, fr)
+
+    latitude, longitude = convert_cords(r)
+
+    cords = {
+        "latitude": latitude,
+        "longitude": longitude
+    }
+
+    return cords
+
+async def get_geo_json(latitude: float, longitude: float):
     url = "https://api.opencagedata.com/geocode/v1/json"
 
     geo_q = str(round(latitude, 7)) + "," + str(round(longitude, 7))
@@ -62,32 +77,29 @@ async def get_geo_json(latitude, longitude):
     }
 
     response = await get_info_from_api(url, geo_params)
-    print(response)
     response = json.loads(response)
-    print(response)
+
+    return response
+
+async def get_country(cords: dict):
+    latitude = cords["latitude"]
+    longitude = cords["longitude"]
+
+    response = await get_geo_json(latitude, longitude)
+
+    components = response["results"][0]["components"]
+
+    region = {
+        "continent": components["continent"],
+        "country": components["country"],
+        "district": components["district"]
+    }
+
+    print(region)
+    return region
 
 
-def get_country(orbital_params: dict):
-    satellite = Satrec.twoline2rv(orbital_params["line_1"], orbital_params["line_2"])
-
-    date = datetime.fromisoformat(orbital_params["date"]) + timedelta(hours=-0.75)
-    jd = date.toordinal() + 1721424.5 + (date.hour + date.minute / 60 + date.second / 3600) / 24
-    fr = (date.hour + date.minute / 60 + date.second / 3600) / 24
-
-    e, r, v = satellite.sgp4(jd, fr)
-
-    latitude, longitude = convert_cords(r)
-
-    print(latitude, longitude)
-    result = get_geo_json(latitude, longitude)
-
-    return result
-
-# async def get_satellite_location(json_response: dict):
-
-
-
-async def main():
+async def data(satellite_name):
     # geo_api_key = "e2357fc9ddfb401bade0d477f1f0ce7e"
     # geo_q = "52.5432379+13.41421330"
     # geo_q = "52.5432379%2C+13.4142133"
@@ -121,12 +133,38 @@ async def main():
     #         r = json.loads(r)
     #         print(type(r))
     #     print(r)
+    satellite_id = None
 
-    params = await get_orbital_params(25544)
+    match satellite_name:
+        case "ISS":
+            satellite_id = 25544
+        case "LANDSAT 9":
+            satellite_id = 49260
+        case "AISSAT 2":
+            satellite_id = 40075
+        case "AISSAT 1":
+            satellite_id = 40075
+        case "NOAA 19":
+            satellite_id = 33591
+        case "NOAA 18":
+            satellite_id = 28654
+        case "ZHUHAI-1 02":
+            satellite_id = 42759
+        case "PROXIMA II":
+            satellite_id = 43696
+        case "PROXIMA I":
+            satellite_id = 43694
+        case "SWISSCUBE":
+            satellite_id = 35932
 
-    await get_country(params)
+    params = await get_orbital_params(satellite_id)
+    cords =  get_cords(params)
+    region = await get_country(cords)
 
+    satellite_data = {
+        "cords": cords,
+        "region": region
+    }
 
-
-asyncio.run(main())
+# asyncio.run(main("ISS"))
 # print(type((1,2)))

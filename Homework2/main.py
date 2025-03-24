@@ -6,6 +6,7 @@
 
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
+from data import data
 
 app = FastAPI()
 
@@ -18,34 +19,20 @@ async def get_position(request: Request):
 @app.get("/response")
 async def get_response(request: Request, satellite_name: str=""):
 
-
-
+    satellite_data = await data(satellite_name)
     satellite = {
         "name": satellite_name,
-        "country": "gfd",
-        "latitude": "saaa",
-        "longitude": "aaaa"
+        "latitude": satellite_data["cords"]["latitude"],
+        "longitude": satellite_data["cords"]["longitude"],
+        "continent": satellite_data["region"]["continent"],
+        "district": satellite_data["region"]["district"],
+        "country": satellite_data["region"]["country"]
     }
 
     return templates.TemplateResponse("response.html", {
             "request": request,
             "satellite": satellite
         })
-
-# @app.get("/response")
-# async def get_response(request: Request):
-#     return templates.TemplateResponse("response.html", {
-#         "request": request,
-#         "satellite": {
-#             "name": "bhgfdkjk",
-#             "country": "gfd",
-#             "latitude": "saaa",
-#             "longitude": "aaaa"
-#
-#         }
-#
-#     })
-
 
 
 # @app.get("/getJSON")
