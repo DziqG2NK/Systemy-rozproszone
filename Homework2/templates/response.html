@@ -7,9 +7,10 @@
 <body>
     <h2>Satelita: {{ satellite.name }}</h2>
     <h2>Obecne położenie satelity: {{ satellite.latitude }}, {{ satellite.longitude }}</h2>
-    <p>Satelita znajduje się obecnie nad:
+    <p>Satelita znajduje się obecnie nad:</p>
     <br/>
-    {{ satellite.country }}, {{ satellite.district }}, <b>{{ satellite.continent }}</b></p>
-
+    {% for data in region.items() %}
+       <h1>{{ data[1] }}</h1>
+    {% endfor %}
 </body>
 </html>

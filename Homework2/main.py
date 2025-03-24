@@ -24,29 +24,18 @@ async def get_response(request: Request, satellite_name: str=""):
         "name": satellite_name,
         "latitude": satellite_data["cords"]["latitude"],
         "longitude": satellite_data["cords"]["longitude"],
-        "continent": satellite_data["region"]["continent"],
-        "district": satellite_data["region"]["district"],
-        "country": satellite_data["region"]["country"]
     }
+
+    # if "continent" in satellite_data["region"]:
+    #     satellite["continent"] = satellite_data["region"]["continent"],
+    #     satellite["district"] = satellite_data["region"]["district"],
+    #     satellite["country"] = satellite_data["region"]["country"]
+    #
+    # elif not "continent" in satellite_data:
+    #     satellite["continent"] = satellite_data["region"]["body_of_water"]
 
     return templates.TemplateResponse("response.html", {
             "request": request,
-            "satellite": satellite
+            "satellite": satellite,
+            "region": satellite_data["region"]
         })
-
-
-# @app.get("/getJSON")
-# async def get_json(url: str):
-#     r = await get_info_from_api(url, params=None)
-#     print(r)
-#     return
-#     # return get_info_from_api("http://api.open-notify.org/astros.json", params=None)
-#
-# @app.get("/getsomething")
-# async def get_some():
-#     r = httpx.get("http://127.0.0.1:8000/")
-#     return r.text
-# @app.get("/gfd/")
-# async def get_position(request: Request):
-    # return templates.TemplateResponse("response.html", {"request": request, "satelite": })
-
