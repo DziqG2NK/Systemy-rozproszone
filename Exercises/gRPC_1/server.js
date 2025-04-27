@@ -2,10 +2,9 @@ const grpc = require('@grpc/grpc-js');
 const protoLoader = require("@grpc/proto-loader");
 const packageDef = protoLoader.loadSync("todo.proto", {});
 const grpcObject = grpc.loadPackageDefinition(packageDef);
-const todoPackage = grpc.todoPackage;
+const todoPackage = grpcObject.todoPackage;
 
 const server = new grpc.Server();
-server.bind("127.0.0.1:40000", grpc.ServerCredentials.createInsecure());
 
 server.addService(todoPackage.Todo.service, 
     {
@@ -13,12 +12,19 @@ server.addService(todoPackage.Todo.service,
         "readTodos": readTodos
     });
 
-server.start();
+server.bindAsync("127.0.0.1:40000", grpc.ServerCredentials.createInsecure(), (err, port) => {
+    if (err) {
+        console.error(err);
+        return;
+    }
+    server.start();
+    console.log(`Server running at 127.0.0.1:${port}`);
+});
 
-function createTodo () {
-    
+function createTodo (call, callback) {
+    console.log(call);
 }
 
-function readTodos () {
+function readTodos (call, callback) {
 
 }
