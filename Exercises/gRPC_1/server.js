@@ -6,6 +6,8 @@ const todoPackage = grpcObject.todoPackage;
 
 const server = new grpc.Server();
 
+const todos = [];
+
 server.addService(todoPackage.Todo.service, 
     {
         "createTodo": createTodo,
@@ -23,6 +25,14 @@ server.bindAsync("127.0.0.1:40000", grpc.ServerCredentials.createInsecure(), (er
 
 function createTodo (call, callback) {
     console.log(call);
+
+    const todoItem = {
+        "id": todos.length + 1,
+        "text": call.request.text
+    }
+    todos.push(todoItem);
+
+    callback(null, todoItem);
 }
 
 function readTodos (call, callback) {
