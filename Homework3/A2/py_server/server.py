@@ -1,4 +1,9 @@
 from random import randint
+import grpc
+from concurrent import futures
+import time
+import random
+
 
 class BuissnessClass():
     def __init__(name, value, self):
@@ -12,6 +17,10 @@ class BuissnessClass():
         self.new_value = self.value + diff
 
         return self.value, self.new_value
+
+class BuissnessServer():
+    def __init__(self):
+        
 
 buissnesses = {
     "gaming": [

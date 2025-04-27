@@ -1,0 +1,35 @@
+syntax = "proto3"
+
+package communication;
+
+enum Category {
+    GAMING = 1;
+    BANKS = 2;
+    INDUSTRY = 3;
+}
+
+message SubscribeMessage {
+    Category category = 1;
+}
+
+message UnsubscribeMessage {
+    Category category = 1;
+}
+
+message BuissnessUpdate {
+    string name = 1;
+    int32 old_value = 2;
+    int32 new_value = 3;
+}
+
+message BuissnessUpdates {
+    repeated BuissnessUpdate updates = 1; 
+}
+
+message Void {
+}
+
+service NotificationService {
+    rpc Subscribe(SubscribeMessage) returns (stream BuissnessUpdates);
+    rpc Unsubscribe(UnsubscribeMessage) returns (Void);
+}
