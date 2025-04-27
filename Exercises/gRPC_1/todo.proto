@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package todoPackage;
+
+// musi być wielkimi literami
+service Todo {
+
+// funkcja rpc która przyjmuje parametr i zwraca jakiś parametr
+    rpc createTodo( TodoItem ) returns ( TodoItem );
+    rpc readTodos( void ) return (TodoItems)
+}
+
+message void { 
+}
+
+message TodoItem {
+    int32 = 1;
+    string text = 2;
+}
+
+message TodoItems {
+    reapeated TodoItem items = 1;
+}
+
