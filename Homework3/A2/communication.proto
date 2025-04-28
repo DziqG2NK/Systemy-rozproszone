@@ -4,10 +4,19 @@ service EventService {
   rpc Subscribe (SubscribeMessage) returns (stream EventMessage);
 }
 
+message Void {}
+
 message SubscribeMessage {
-  string topic = 1;
+  Category category = 1;
 }
 
 message EventMessage {
   string event = 1; 
+}
+
+enum Category {
+  NOT_DEFINED = 0;
+  GAMING = 1;
+  BANKS = 2;
+  INDUSTRY = 3;
 }
