@@ -125,7 +125,11 @@ def send_to_info_subscribers():
                 print(subscriber_categories)
                 # yield communication_pb2.BuissinessUpdates()
 
-        time.sleep(6)
+        max_range = 6
+        for i in range(max_range):
+            print(f"{i+ 1} / {max_range} sekund...")
+            time.sleep(1)
+
 
 
 

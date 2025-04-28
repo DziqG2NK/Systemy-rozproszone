@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package communication;
+
 service EventService {
   rpc Subscribe (SubscribeMessage) returns (stream EventMessage);
 }

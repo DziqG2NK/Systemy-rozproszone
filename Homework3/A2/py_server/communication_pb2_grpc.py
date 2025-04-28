@@ -35,7 +35,7 @@ class EventServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Subscribe = channel.unary_stream(
-                '/EventService/Subscribe',
+                '/communication.EventService/Subscribe',
                 request_serializer=communication__pb2.SubscribeMessage.SerializeToString,
                 response_deserializer=communication__pb2.EventMessage.FromString,
                 _registered_method=True)
@@ -60,9 +60,9 @@ def add_EventServiceServicer_to_server(servicer, server):
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'EventService', rpc_method_handlers)
+            'communication.EventService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('EventService', rpc_method_handlers)
+    server.add_registered_method_handlers('communication.EventService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
@@ -83,7 +83,7 @@ class EventService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/EventService/Subscribe',
+            '/communication.EventService/Subscribe',
             communication__pb2.SubscribeMessage.SerializeToString,
             communication__pb2.EventMessage.FromString,
             options,
