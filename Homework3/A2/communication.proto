@@ -4,6 +4,7 @@ package communication;
 
 service EventService {
   rpc Subscribe (SubscribeMessage) returns (stream EventMessage);
+  rpc SendInfo (Void) returns (stream BuissinessUpdates);
 }
 
 message Void {}

@@ -39,12 +39,23 @@ class EventServiceStub(object):
                 request_serializer=communication__pb2.SubscribeMessage.SerializeToString,
                 response_deserializer=communication__pb2.EventMessage.FromString,
                 _registered_method=True)
+        self.SendInfo = channel.unary_stream(
+                '/communication.EventService/SendInfo',
+                request_serializer=communication__pb2.Void.SerializeToString,
+                response_deserializer=communication__pb2.BuissinessUpdates.FromString,
+                _registered_method=True)
 
 
 class EventServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Subscribe(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendInfo(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -57,6 +68,11 @@ def add_EventServiceServicer_to_server(servicer, server):
                     servicer.Subscribe,
                     request_deserializer=communication__pb2.SubscribeMessage.FromString,
                     response_serializer=communication__pb2.EventMessage.SerializeToString,
+            ),
+            'SendInfo': grpc.unary_stream_rpc_method_handler(
+                    servicer.SendInfo,
+                    request_deserializer=communication__pb2.Void.FromString,
+                    response_serializer=communication__pb2.BuissinessUpdates.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -86,6 +102,33 @@ class EventService(object):
             '/communication.EventService/Subscribe',
             communication__pb2.SubscribeMessage.SerializeToString,
             communication__pb2.EventMessage.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendInfo(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/communication.EventService/SendInfo',
+            communication__pb2.Void.SerializeToString,
+            communication__pb2.BuissinessUpdates.FromString,
             options,
             channel_credentials,
             insecure,

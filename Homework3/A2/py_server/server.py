@@ -84,6 +84,36 @@ class EventService(communication_pb2_grpc.EventServiceServicer):
             if not subscribers[client_id]:
                 del subscribers[client_id]
 
+    def SendInfo(self, request, context):
+        while True:
+            if len(subscribers) > 0:
+                print("Wysyłanie informacji...")
+
+                for subscriber_categories in subscribers.values():
+                    updates = []
+
+                    for category in subscriber_categories:
+                        print(category)
+
+                    # Iterujemy po każdej firmie w kategorii
+                    for category, buissness_list in buissnesses.items():
+                        for buissness in buissness_list:
+                            old_value, new_value = buissness.update_value()
+                            update = communication_pb2.BuissinessUpdate(
+                                name=buissness.name,
+                                old_value=old_value,
+                                new_value=new_value
+                            )
+                            updates.append(update)
+
+                    # Wysyłamy BuissinessUpdates do subskrybentów
+                    yield communication_pb2.BuissinessUpdates(updates=updates)
+
+
+            max_range = 6
+            for i in range(max_range):
+                print(f"{i + 1} / {max_range} sekund...")
+                time.sleep(1)
 
 
 def end_server():
@@ -117,7 +147,8 @@ def update_buissnesses():
             # print(f"{i+ 1} / {max_range} sekund...")
             time.sleep(1)
 
-def send_to_info_subscribers():
+def send_info_to_subscribers():
+    print("NHFDJFBS")
     while True:
         if len(subscribers) > 0:
             print("Wysyłanie informacji...")
@@ -127,27 +158,46 @@ def send_to_info_subscribers():
 
         max_range = 6
         for i in range(max_range):
-            print(f"{i+ 1} / {max_range} sekund...")
+            print(f"{i + 1} / {max_range} sekund...")
             time.sleep(1)
 
 
-
-
-if __name__ == '__main__':
-
+def start_threads():
     turning_off_thread = threading.Thread(target=end_server)
     turning_off_thread.daemon = True
     turning_off_thread.start()
 
-    updating_thread = threading.Thread(target=update_buissnesses)
-    updating_thread.daemon = True
-    updating_thread.start()
+    # Uruchomienie serwera
+    server_thread = threading.Thread(target=serve)
+    server_thread.daemon = True
+    server_thread.start()
 
-    notifying_thread = threading.Thread(target=send_to_info_subscribers)
+    # Uruchomienie funkcji do wysyłania informacji
+    notifying_thread = threading.Thread(target=send_info_to_subscribers)
     notifying_thread.daemon = True
     notifying_thread.start()
 
+    while True:
+        time.sleep(1)  # Utrzymujemy główny wątek żywy
+
+if __name__ == '__main__':
+    start_threads()
     serve()
+
+
+
+
+    # updating_thread = threading.Thread(target=update_buissnesses)
+    # updating_thread.daemon = True
+    # updating_thread.start()
+    #
+    #
+    # print("NHFKDSBHFJ")
+    # notifying_thread = threading.Thread(target=send_info_to_subscribers)
+    # notifying_thread.daemon = True
+    # notifying_thread.start()
+    #
+    # serve()
 
     # while True:
     #     updates = []

@@ -1,15 +1,4 @@
-// const grpc = require('@grpc/grpc-js');
-// const protoLoader = require('@grpc/proto-loader');
 const readline = require('readline');
-
-// Ładowanie pliku .proto z katalogu wyżej
-// const packageDef = protoLoader.loadSync('../communication.proto', {});
-// const grpcObject = grpc.loadPackageDefinition(packageDef);
-// const communicationProto = grpcObject.communication; // Sprawdź, czy to jest właściwa nazwa pakietu
-
-// Tworzenie klienta
-// const client = new communicationProto.EventService('127.0.0.1:50000', grpc.credentials.createInsecure());
-
 const grpc = require('@grpc/grpc-js');
 const protoLoader = require('@grpc/proto-loader');
 
@@ -23,18 +12,15 @@ const packageDefinition = protoLoader.loadSync('../communication.proto', {
 
 const proto = grpc.loadPackageDefinition(packageDefinition);
 
-// UWAGA tutaj! Musisz wziąć communication.EventService
 const client = new proto.communication.EventService('localhost:50000', grpc.credentials.createInsecure());
 
-// Tworzenie interfejsu do wczytywania danych z klawiatury
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
 
-let activeSubscriptions = {};  // Przechowujemy aktywne subskrypcje
+let activeSubscriptions = {}; 
 
-// Funkcja subskrybująca kategorię
 function subscribeToCategory(category) {
     if (activeSubscriptions[category]) {
         console.log(`Już subskrybujesz kategorię: ${category}`);
@@ -44,7 +30,7 @@ function subscribeToCategory(category) {
     const request = { category: category };
     // console.log(request);
 
-    console.log("O TO TU")
+    // console.log("O TO TU")
     const call = client.Subscribe(request);
 
     call.on('data', (response) => {
@@ -57,19 +43,18 @@ function subscribeToCategory(category) {
 
     call.on('end', () => {
         console.log(`Subskrypcja kategorii ${category} zakończona.`);
-        delete activeSubscriptions[category];  // Usuwamy subskrypcję, gdy zakończona
+        delete activeSubscriptions[category]; 
     });
 
     activeSubscriptions[category] = call;
     console.log(`Subskrybujesz kategorię: ${category}`);
 }
 
-// Funkcja odsubskrybowująca kategorię
 function unsubscribeFromCategory(category) {
     const subscription = activeSubscriptions[category];
     if (subscription) {
-        subscription.cancel();  // Zatrzymujemy strumień
-        delete activeSubscriptions[category];  // Usuwamy subskrypcję
+        subscription.cancel();  
+        delete activeSubscriptions[category]; 
         console.log(`Odsuubskrybowałeś kategorię: ${category}`);
     } else {
         console.log(`Nie masz aktywnej subskrypcji dla kategorii: ${category}`);
@@ -90,9 +75,8 @@ function createUpdateMessage(name, old_value, new_value) {
     return `Firma ${name} ma wartość ${new_value}.00 PLN\n${changeStr}`;
 }
 
-// Funkcja obsługująca zapytania użytkownika o subskrypcję
 function askInput() {
-    rl.question('Wybierz kategorię do subskrypcji [GAMING|BANKS|INDUSTRY].\nJeśli chcesz odsubskrybować kategorię wpisz [-GAMING|-BANKS|-INDUSTRY].\nWpisz "exit" aby zakończyć: ', (input) => {
+    rl.question('Wybierz kategorię do subskrypcji [GAMING|BANKS|INDUSTRY].\nJeśli chcesz odsubskrybować kategorię wpisz [-GAMING|-BANKS|-INDUSTRY].\nWpisz "exit" aby zakończyć:\n\n ', (input) => {
         if (input.toLowerCase() === 'exit') {
             rl.close();
             return;
@@ -105,17 +89,35 @@ function askInput() {
         };
        
 
-        const category = categoryMap[input.toLowerCase()];
-        const unsubCategory = categoryMap[input.substring(1).toLowerCase()];
+        // const category = categoryMap[input.toLowerCase()];
+        // const unsubCategory = categoryMap[input.substring(1).toLowerCase()];
 
-        if (category === undefined && unsubCategory === undefined) {
-            console.log('Niepoprawna kategoria. Wybierz GAMING, BANKS, lub INDUSTRY.');
-        } else if (category) {
-            console.log(`Subskrybujesz kategorię: ${input.toUpperCase()}`);
-            subscribeToCategory(category);
-        } else if (unsubCategory) {
-            console.log(`Odsuubskrybujesz kategorię: ${input.toUpperCase().substring(1)}`);
-            unsubscribeFromCategory(unsubCategory);
+        // if (category === undefined && unsubCategory === undefined) {
+        //     console.log('Niepoprawna kategoria. Wybierz GAMING, BANKS, lub INDUSTRY.');
+        // } else if (category) {
+        //     console.log(`Subskrybujesz kategorię: ${input.toUpperCase()}`);
+        //     subscribeToCategory(category);
+        // } else if (unsubCategory) {
+        //     console.log(`Odsuubskrybujesz kategorię: ${input.toUpperCase().substring(1)}`);
+        //     unsubscribeFromCategory(unsubCategory);
+        // }
+
+        if (input.startsWith('-')) {
+            const unsubCategory = input.substring(1).toUpperCase();
+            if (categoryMap[unsubCategory.toLowerCase()]) {
+                console.log(`Odsuubskrybujesz kategorię: ${unsubCategory}`);
+                unsubscribeFromCategory(unsubCategory);
+            } else {
+                console.log('Niepoprawna kategoria do odsubskrybowania.');
+            }
+        } else {
+            const category = categoryMap[input.toLowerCase()];
+            if (category) {
+                console.log(`Subskrybujesz kategorię: ${category}`);
+                subscribeToCategory(category);
+            } else {
+                console.log('Niepoprawna kategoria. Wybierz GAMING, BANKS, lub INDUSTRY.');
+            }
         }
 
         askInput();
