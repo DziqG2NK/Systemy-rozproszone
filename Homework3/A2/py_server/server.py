@@ -1,6 +1,9 @@
 from random import randint
 import grpc
 import time
+import keyboard
+import threading
+import sys
 from concurrent import futures
 
 # import protofile results
@@ -45,7 +48,7 @@ buissnesses = {
 
 def create_update_message(name, old_value, new_value):
     print(new_value, old_value)
-    return f"The company {name} now has {new_value}.00 PLN\n" + (f"Wzrost notowań o {round((new_value - old_value) / old_value, 2)} %" if (new_value - old_value) > 0
+    return f"Firma {name} ma wartość {new_value}.00 PLN\n" + (f"Wzrost notowań o {round((new_value - old_value) / old_value, 2)} %" if (new_value - old_value) > 0
      else f"Spadek notowań o {round((new_value - old_value) / old_value, 2)} %")
 
 
@@ -82,15 +85,23 @@ class EventService(communication_pb2_grpc.EventServiceServicer):
                 del subscribers[client_id]
 
 
+
+def end_server():
+    print("NACIŚNIJ [q] PRZYCISK ABY WYJŚĆ")
+    while True:
+        if keyboard.is_pressed("q"):
+            print("Serwer kończy działanie...")
+            # exit()
+
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     communication_pb2_grpc.add_EventServiceServicer_to_server(EventService(), server)
     server.add_insecure_port('127.0.0.1:50000')
     server.start()
-    print("Server waiting and listening on port 50000...")
+    print("Serwer nasłuchuje na porcie 50000...")
     server.wait_for_termination()
 
-def send_updates():
+def update_buissnesses():
     while True:
         updates = []
         for category in buissnesses:
@@ -98,17 +109,39 @@ def send_updates():
                 buissness.update_value()
                 updates.append(create_update_message(buissness.name, buissness.value, buissness.new_value))
 
-        for message in updates:
-            print(message)
+        # for message in updates:
+        #     print(message)
 
         max_range = 6
         for i in range(max_range):
-            print(f"{i+ 1} / {max_range} sekund...")
+            # print(f"{i+ 1} / {max_range} sekund...")
             time.sleep(1)
+
+def send_to_info_subscribers():
+    while True:
+        if len(subscribers) > 0:
+            print("Wysyłanie informacji...")
+            for subscriber_categories in subscribers.values():
+                print(subscriber_categories)
+
+        time.sleep(6)
 
 
 
 if __name__ == '__main__':
+
+    turning_off_thread = threading.Thread(target=end_server)
+    turning_off_thread.daemon = True
+    turning_off_thread.start()
+
+    updating_thread = threading.Thread(target=update_buissnesses)
+    updating_thread.daemon = True
+    updating_thread.start()
+
+    notifying_thread = threading.Thread(target=send_to_info_subscribers)
+    notifying_thread.daemon = True
+    notifying_thread.start()
+
     serve()
 
     # while True:
