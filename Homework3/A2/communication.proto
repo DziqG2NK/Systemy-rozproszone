@@ -14,6 +14,16 @@ message EventMessage {
   string event = 1; 
 }
 
+message BuissinessUpdate {
+  string name = 1;
+  int32 old_value = 2;
+  int32 new_value = 3;
+}
+
+message BuissinessUpdates {
+  repeated BuissinessUpdate updates = 1;
+}
+
 enum Category {
   NOT_DEFINED = 0;
   GAMING = 1;

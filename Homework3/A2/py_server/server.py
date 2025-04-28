@@ -47,7 +47,7 @@ buissnesses = {
 }
 
 def create_update_message(name, old_value, new_value):
-    print(new_value, old_value)
+    # print(new_value, old_value)
     return f"Firma {name} ma wartość {new_value}.00 PLN\n" + (f"Wzrost notowań o {round((new_value - old_value) / old_value, 2)} %" if (new_value - old_value) > 0
      else f"Spadek notowań o {round((new_value - old_value) / old_value, 2)} %")
 
@@ -123,6 +123,7 @@ def send_to_info_subscribers():
             print("Wysyłanie informacji...")
             for subscriber_categories in subscribers.values():
                 print(subscriber_categories)
+                # yield communication_pb2.BuissinessUpdates()
 
         time.sleep(6)
 

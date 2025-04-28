@@ -10,6 +10,7 @@ def run():
     # Wysyłamy zapytanie o subskrypcję
     category = communication_pb2.Category.GAMING
     request = communication_pb2.SubscribeMessage(category=category)
+    request = communication_pb2.SubscribeMessage(category=communication_pb2.Category.BANKS)
 
     # Strumieniowe odbieranie wiadomości
     for event in stub.Subscribe(request):
