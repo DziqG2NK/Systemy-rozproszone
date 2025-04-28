@@ -1,11 +1,11 @@
-syntax = "proto3"
+syntax = "proto3";
 
 package communication;
 
 enum Category {
-    GAMING = 1;
-    BANKS = 2;
-    INDUSTRY = 3;
+    GAMING = 0;
+    BANKS = 1;
+    INDUSTRY = 2;
 }
 
 message SubscribeMessage {
@@ -18,8 +18,6 @@ message UnsubscribeMessage {
 
 message BuissnessUpdate {
     string name = 1;
-    int32 old_value = 2;
-    int32 new_value = 3;
 }
 
 message BuissnessUpdates {
