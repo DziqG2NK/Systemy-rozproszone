@@ -24,25 +24,17 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63ommunication.proto\x12\rcommunication\"=\n\x10SubscribeMessage\x12)\n\x08\x63\x61tegory\x18\x01 \x01(\x0e\x32\x17.communication.Category\"?\n\x12UnsubscribeMessage\x12)\n\x08\x63\x61tegory\x18\x01 \x01(\x0e\x32\x17.communication.Category\"E\n\x0f\x42uissnessUpdate\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x11\n\told_value\x18\x02 \x01(\x05\x12\x11\n\tnew_value\x18\x03 \x01(\x05\"C\n\x10\x42uissnessUpdates\x12/\n\x07updates\x18\x01 \x03(\x0b\x32\x1e.communication.BuissnessUpdate\"\x06\n\x04Void*/\n\x08\x43\x61tegory\x12\n\n\x06GAMING\x10\x00\x12\t\n\x05\x42\x41NKS\x10\x01\x12\x0c\n\x08INDUSTRY\x10\x02\x32\xad\x01\n\x13NotificationService\x12O\n\tSubscribe\x12\x1f.communication.SubscribeMessage\x1a\x1f.communication.BuissnessUpdates0\x01\x12\x45\n\x0bUnsubscribe\x12!.communication.UnsubscribeMessage\x1a\x13.communication.Voidb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x13\x63ommunication.proto\"!\n\x10SubscribeMessage\x12\r\n\x05topic\x18\x01 \x01(\t\"\x1d\n\x0c\x45ventMessage\x12\r\n\x05\x65vent\x18\x01 \x01(\t2?\n\x0c\x45ventService\x12/\n\tSubscribe\x12\x11.SubscribeMessage\x1a\r.EventMessage0\x01\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'communication_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
-  _globals['_CATEGORY']._serialized_start=314
-  _globals['_CATEGORY']._serialized_end=361
-  _globals['_SUBSCRIBEMESSAGE']._serialized_start=38
-  _globals['_SUBSCRIBEMESSAGE']._serialized_end=99
-  _globals['_UNSUBSCRIBEMESSAGE']._serialized_start=101
-  _globals['_UNSUBSCRIBEMESSAGE']._serialized_end=164
-  _globals['_BUISSNESSUPDATE']._serialized_start=166
-  _globals['_BUISSNESSUPDATE']._serialized_end=235
-  _globals['_BUISSNESSUPDATES']._serialized_start=237
-  _globals['_BUISSNESSUPDATES']._serialized_end=304
-  _globals['_VOID']._serialized_start=306
-  _globals['_VOID']._serialized_end=312
-  _globals['_NOTIFICATIONSERVICE']._serialized_start=364
-  _globals['_NOTIFICATIONSERVICE']._serialized_end=537
+  _globals['_SUBSCRIBEMESSAGE']._serialized_start=23
+  _globals['_SUBSCRIBEMESSAGE']._serialized_end=56
+  _globals['_EVENTMESSAGE']._serialized_start=58
+  _globals['_EVENTMESSAGE']._serialized_end=87
+  _globals['_EVENTSERVICE']._serialized_start=89
+  _globals['_EVENTSERVICE']._serialized_end=152
 # @@protoc_insertion_point(module_scope)

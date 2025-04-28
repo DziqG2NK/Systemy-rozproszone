@@ -25,7 +25,7 @@ if _version_not_supported:
     )
 
 
-class NotificationServiceStub(object):
+class EventServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -35,18 +35,13 @@ class NotificationServiceStub(object):
             channel: A grpc.Channel.
         """
         self.Subscribe = channel.unary_stream(
-                '/communication.NotificationService/Subscribe',
+                '/EventService/Subscribe',
                 request_serializer=communication__pb2.SubscribeMessage.SerializeToString,
-                response_deserializer=communication__pb2.BuissnessUpdates.FromString,
-                _registered_method=True)
-        self.Unsubscribe = channel.unary_unary(
-                '/communication.NotificationService/Unsubscribe',
-                request_serializer=communication__pb2.UnsubscribeMessage.SerializeToString,
-                response_deserializer=communication__pb2.Void.FromString,
+                response_deserializer=communication__pb2.EventMessage.FromString,
                 _registered_method=True)
 
 
-class NotificationServiceServicer(object):
+class EventServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def Subscribe(self, request, context):
@@ -55,34 +50,23 @@ class NotificationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def Unsubscribe(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
 
-
-def add_NotificationServiceServicer_to_server(servicer, server):
+def add_EventServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Subscribe': grpc.unary_stream_rpc_method_handler(
                     servicer.Subscribe,
                     request_deserializer=communication__pb2.SubscribeMessage.FromString,
-                    response_serializer=communication__pb2.BuissnessUpdates.SerializeToString,
-            ),
-            'Unsubscribe': grpc.unary_unary_rpc_method_handler(
-                    servicer.Unsubscribe,
-                    request_deserializer=communication__pb2.UnsubscribeMessage.FromString,
-                    response_serializer=communication__pb2.Void.SerializeToString,
+                    response_serializer=communication__pb2.EventMessage.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'communication.NotificationService', rpc_method_handlers)
+            'EventService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('communication.NotificationService', rpc_method_handlers)
+    server.add_registered_method_handlers('EventService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class NotificationService(object):
+class EventService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -99,36 +83,9 @@ class NotificationService(object):
         return grpc.experimental.unary_stream(
             request,
             target,
-            '/communication.NotificationService/Subscribe',
+            '/EventService/Subscribe',
             communication__pb2.SubscribeMessage.SerializeToString,
-            communication__pb2.BuissnessUpdates.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def Unsubscribe(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/communication.NotificationService/Unsubscribe',
-            communication__pb2.UnsubscribeMessage.SerializeToString,
-            communication__pb2.Void.FromString,
+            communication__pb2.EventMessage.FromString,
             options,
             channel_credentials,
             insecure,

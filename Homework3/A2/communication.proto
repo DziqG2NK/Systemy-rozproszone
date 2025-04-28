@@ -1,33 +1,13 @@
 syntax = "proto3";
 
-package communication;
-
-enum Category {
-    GAMING = 0;
-    BANKS = 1;
-    INDUSTRY = 2;
+service EventService {
+  rpc Subscribe (SubscribeMessage) returns (stream EventMessage);
 }
 
 message SubscribeMessage {
-    Category category = 1;
+  string topic = 1;
 }
 
-message UnsubscribeMessage {
-    Category category = 1;
-}
-
-message BuissnessUpdate {
-    string name = 1;
-}
-
-message BuissnessUpdates {
-    repeated BuissnessUpdate updates = 1; 
-}
-
-message Void {
-}
-
-service NotificationService {
-    rpc Subscribe(SubscribeMessage) returns (stream BuissnessUpdates);
-    rpc Unsubscribe(UnsubscribeMessage) returns (Void);
+message EventMessage {
+  string event = 1; 
 }
