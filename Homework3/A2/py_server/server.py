@@ -20,6 +20,8 @@ class BuissnessClass():
 
         return self.value, self.new_value
 
+clients = {}
+subscribers = {}
 
 buissnesses = {
     "gaming": [
@@ -49,12 +51,35 @@ def create_update_message(name, old_value, new_value):
 
 class EventService(communication_pb2_grpc.EventServiceServicer):
     def Subscribe(self, request, context):
-        if request.category == communication_pb2.Category.GAMING:
-            yield communication_pb2.EventMessage(event="Gaming event")
-        elif request.category == communication_pb2.Category.BANKS:
-            yield communication_pb2.EventMessage(event="Banks event")
-        elif request.category == communication_pb2.Category.INDUSTRY:
-            yield communication_pb2.EventMessage(event="Industry event")
+        client_id = str(context.peer())
+        if client_id not in subscribers:
+            subscribers[client_id] = []
+
+        category = ""
+        match request.category:
+            case communication_pb2.Category.GAMING:
+                category = "gaming"
+            case communication_pb2.Category.BANKS:
+                category = "banks"
+            case communication_pb2.Category.INDUSTRY:
+                category = "industry"
+            case _:
+                print(f"Klient nie wybrał żadnej obecnej kategorii")
+                yield communication_pb2.EventMessage(event="Nie zasubskrybowano! \n Nie wybrano odpowiedniej kategorii. \n Wybierz [GAMING|BANKS|INDUSTRY]")
+
+        if category != "":
+            subscribers[client_id].append(request.category)
+            print(f"Klient {client_id} subskrybuje kategorię {category}")
+            yield communication_pb2.EventMessage(event=f"Zasubskrybowano kategorię {category}")
+
+        try:
+            while True:
+                time.sleep(1)
+        except grpc.RpcError:
+            print(f"Klient {client_id} zakończył subskrypcję.")
+            subscribers[client_id].remove(request.category)
+            if not subscribers[client_id]:
+                del subscribers[client_id]
 
 
 def serve():
@@ -81,8 +106,7 @@ def send_updates():
             print(f"{i+ 1} / {max_range} sekund...")
             time.sleep(1)
 
-clients = {}
-subscribers = {}
+
 
 if __name__ == '__main__':
     serve()
