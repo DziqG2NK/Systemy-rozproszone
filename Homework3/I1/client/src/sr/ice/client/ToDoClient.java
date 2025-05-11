@@ -12,26 +12,7 @@ public class ToDoClient {
     private static final String IP = "127.0.0.1";
     private static final int PORT = 50000;
 
-    public static class Task {
-        public int id;
-        public String description;
-        public boolean isDone;
 
-        public Task(int id, String description, boolean isDone) {
-            this.id = id;
-            this.description = description;
-            this.isDone = isDone;
-        }
-
-        @Override
-        public String toString() {
-            return "Task { " +
-                    "id=" + id +
-                    ", description='" + description + '\'' +
-                    ", isDone=" + isDone +
-                    " }";
-        }
-    }
 
     private static List<Task> getAllListInvocation(ObjectPrx proxy) {
         try {
@@ -115,7 +96,7 @@ public class ToDoClient {
         }
     }
 
-    private static void changeTaskStateInvocation(ObjectPrx proxy, int id) {
+    private static boolean changeTaskStateInvocation(ObjectPrx proxy, int id) {
         try {
             OutputStream out = new OutputStream(proxy.ice_getCommunicator());
             out.startEncapsulation();
@@ -128,6 +109,15 @@ public class ToDoClient {
             if (!resultAns.returnValue) {
                 throw new RuntimeException("Invocation failed!");
             }
+
+            byte[] resultBytes = resultAns.outParams;
+            InputStream in = new InputStream(proxy.ice_getCommunicator(), resultBytes);
+            in.startEncapsulation();
+            boolean success = in.readBool();
+            in.endEncapsulation();
+
+            return success;
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -136,7 +126,7 @@ public class ToDoClient {
     public static void main(String[] args) {
         try (Communicator communicator = Util.initialize(args)) {
 
-            ObjectPrx base = communicator.stringToProxy("LibraryService:tcp -h %s -p %d".formatted(IP, PORT));
+            ObjectPrx base = communicator.stringToProxy("ToDoService:tcp -h %s -p %d".formatted(IP, PORT));
 
             Scanner scanner = new Scanner(System.in);
 
@@ -144,7 +134,7 @@ public class ToDoClient {
                 System.out.println("\n===== TODO APP MENU =====");
                 System.out.println("1 - Add new task");
                 System.out.println("2 - List all tasks");
-                System.out.println("3 - List not done tasks");
+                System.out.println("3 - List of done tasks");
                 System.out.println("4 - Change task state");
                 System.out.println("0 - Exit");
                 System.out.print("Choose option: ");
@@ -175,8 +165,12 @@ public class ToDoClient {
                     case "4":
                         System.out.print("Enter task ID to mark as done: ");
                         int id = Integer.parseInt(scanner.nextLine());
-                        changeTaskStateInvocation(base, id);
-                        System.out.println("Task state changed.");
+                        boolean flag = changeTaskStateInvocation(base, id);
+                        if (flag) {
+                            System.out.println("Task state changed.");
+                            break;
+                        }
+                        System.out.println("Couldn't find task with given ID.");
                         break;
                     case "0":
                         System.out.println("Exiting...");

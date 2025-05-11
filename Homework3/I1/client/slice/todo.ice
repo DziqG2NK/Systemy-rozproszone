@@ -14,6 +14,6 @@ module Demo
         Tasks getAllList();
         Tasks getNotDoneTasks();
         void addTask(string description);
-        void changeTaskState(int id);
+        bool changeTaskState(int id);
     };
 };

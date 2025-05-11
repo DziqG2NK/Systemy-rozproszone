@@ -233,7 +233,7 @@ if 'TodoServicePrx' not in _M_Demo.__dict__:
     TodoService._op_getAllList = IcePy.Operation('getAllList', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), ((), _M_Demo._t_Tasks, False, 0), ())
     TodoService._op_getNotDoneTasks = IcePy.Operation('getNotDoneTasks', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (), (), ((), _M_Demo._t_Tasks, False, 0), ())
     TodoService._op_addTask = IcePy.Operation('addTask', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_string, False, 0),), (), None, ())
-    TodoService._op_changeTaskState = IcePy.Operation('changeTaskState', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_int, False, 0),), (), None, ())
+    TodoService._op_changeTaskState = IcePy.Operation('changeTaskState', Ice.OperationMode.Normal, Ice.OperationMode.Normal, False, None, (), (((), IcePy._t_int, False, 0),), (), ((), IcePy._t_bool, False, 0), ())
 
     _M_Demo.TodoService = TodoService
     del TodoService

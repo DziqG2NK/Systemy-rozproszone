@@ -5,7 +5,6 @@ import Ice
 Ice.updateModule("Demo")
 
 # Modules:
-import books_ice
 import todo_ice
 
 # Submodules:

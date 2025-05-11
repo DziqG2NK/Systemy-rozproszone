@@ -54,7 +54,7 @@ function unsubscribeFromCategory(category) {
     const subscription = activeSubscriptions[category];
     if (subscription) {
         subscription.cancel();  
-        delete activeSubscriptions[category]; 
+        delete activeSubscriptions[category];
         console.log(`Odsuubskrybowałeś kategorię: ${category}`);
     } else {
         console.log(`Nie masz aktywnej subskrypcji dla kategorii: ${category}`);

@@ -148,7 +148,6 @@ def update_buissnesses():
             time.sleep(1)
 
 def send_info_to_subscribers():
-    print("NHFDJFBS")
     while True:
         if len(subscribers) > 0:
             print("Wysyłanie informacji...")
