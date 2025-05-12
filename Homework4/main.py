@@ -4,9 +4,11 @@ from storagenode import StorageNode
 
 # @ray.remote
 class NameNode():
-    def __init__(self, storagesNumber, chunksNumber, chunkSize):
+    def __init__(self, storagesNumber, chunksNumber, chunkSize, copiesNumber):
+        self.copiesNumber = copiesNumber
         self.storages = {}
         self.artefacts = {}
+        self.artefactsLengths = {}
         self.chunkSize = chunkSize
 
         for i in range(storagesNumber):
@@ -29,6 +31,7 @@ class NameNode():
                 self.storages[i].destoreArtefact(list[i])
 
         del self.artefacts[fileName]
+        del self.artefactsLengths[fileName]
 
     # klucz: [pierwszy wyraz [storage, []]]
 
@@ -36,45 +39,25 @@ class NameNode():
         self.artefacts[fileName] = []
 
         dividedArtefact = self.divideArtefact(artefact)
+        self.artefactsLengths[fileName] = len(dividedArtefact)
         i = 0
         n = len(self.storages)
 
-        # first round - embedding originals
-        for artefactPart in dividedArtefact:
-            # print(artefactPart)
-            if [storage.isFull() for storage in self.storages.values()].count(False) == 0:
-                # Print if all storages are full
-                print("No space left, removing artefact")
-                self.removeArtefact(fileName)
-                break
+        for _ in range(self.copiesNumber):
 
-            chunkInStorage = self.storages[i % n].storeArtefact(artefactPart)
-            # print("chunkInStorage")
-            # print(chunkInStorage)
-            if chunkInStorage is not None:
-                self.artefacts[fileName].append([i % n, chunkInStorage])
+            for artefactPart in dividedArtefact:
 
-                # if chunkInStorage not in self.artefacts[fileName]:
-                #     self.artefacts[fileName][chunkInStorage] = []
-                # self.artefacts[fileName][chunkInStorage].append(chunkInStorage)
+                if [storage.isFull() for storage in self.storages.values()].count(False) == 0:
+                    print("No space left, removing artefact")
+                    self.removeArtefact(fileName)
+                    break
 
-            i += 1
+                chunkInStorage = self.storages[i % n].storeArtefact(artefactPart)
 
-        # second round - embedding copy
-        # for artefactPart in dividedArtefact:
-        #     print(artefactPart)
-        #     if [storage.isFull() for storage in self.storages.values()].count(False) == 0:
-        #         print("No space left for second round")
-        #         self.removeArtefact(fileName)
-        #         break
-        #
-        #     chunkInStorage = self.storages[i % n].storeArtefact(artefactPart)
-        #     if chunkInStorage is not None:
-        #         if chunkInStorage not in self.artefacts[fileName]:
-        #             self.artefacts[fileName][chunkInStorage] = []
-        #         self.artefacts[fileName][chunkInStorage].append(chunkInStorage)
-        #
-        #     i += 1
+                if chunkInStorage is not None:
+                    self.artefacts[fileName].append([i % n, chunkInStorage])
+
+                i += 1
 
     def modifyArtefact(self, fileName, newArtefact):
         self.removeArtefact(fileName)
@@ -87,6 +70,22 @@ class NameNode():
         for artefacts in self.artefacts:
             print(artefacts)
             print(self.artefacts[artefacts])
+
+    def readArtefact(self, fileName):
+        n = self.artefactsLengths[fileName]
+        result = [None for _ in range(n)]
+
+        for i in range(self.copiesNumber):
+            for j, [storage, chunk] in enumerate(self.artefacts[fileName]):
+                if self.storages[storage].isFull:
+                    if result[j % n] == None:
+                        result[j % n] = self.storages[storage].getChunkValue(chunk)
+
+        artefact = ""
+        for res in result:
+            artefact = artefact + res
+
+        return artefact
 
 
 def main():
@@ -129,13 +128,14 @@ def main():
 if __name__ == '__main__':
     # main()
     # # print_hi('PyCharm')
-    node = NameNode(5,5, 5)
+    node = NameNode(5,5, 5, 2)
     # print(node.divideArtefact("To jest jakiś przykładowy string !ddd"))
     node.printAll()
     node.storeArtefact("Przykład","To jest jakiś przykładowy string !ddd")
     node.printAll()
     node.modifyArtefact("Przykład", "NIC W SUMIE CIEKAWEGO")
     node.printAll()
+    print(node.readArtefact("Przykład"))
 
 
     # Testing StorageNode
