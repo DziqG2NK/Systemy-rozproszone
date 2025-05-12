@@ -6,7 +6,7 @@ class NameNode():
         self.chunks = chunks
         self.artefact = ""
 
-@ray.remote
+# @ray.remote
 class StorageNode():
     def __init__(self, storageNumber, chunksNumber, isDamaged):
         self.storageNumber = storageNumber
@@ -17,7 +17,7 @@ class StorageNode():
         for i in range(chunksNumber):
             self.chunks[i] = ""
 
-    def operationInfo(self, operation, hasSucceded):
+    def __operationInfo(self, operation, hasSucceded):
         if hasSucceded:
             print("STORAGE INFO: Operation " + Fore.BLUE + operation + Fore.WHITE + " has " + Fore.GREEN + "SUCCEEDED")
         if not hasSucceded:
@@ -28,22 +28,16 @@ class StorageNode():
         if not self.isDamaged:
             print(Fore.BLUE + f"Storage number {self.storageNumber} actual status:")
             for key in self.chunks:
+                print(Style.RESET_ALL)
                 print(f"Chunk {str(key)}: {self.chunks[key]}")
-                print()
+            print()
 
         else:
             print(Fore.BLUE + f"Storage number {self.storageNumber} is damaged!")
-            print()
+            print(Style.RESET_ALL)
 
-    def isChunkFree(self, chunkNumber):
+    def __isChunkFree(self, chunkNumber):
         return self.chunks[chunkNumber] == ""
-
-    def isStorageFull(self):
-        for key in self.chunks:
-            if self.isChunkFree(key):
-                return False
-
-        return True
 
     def damageChunk(self):
         self.isDamaged = True
@@ -51,15 +45,15 @@ class StorageNode():
     def repairChunk(self):
         self.isDamaged = False
 
-    def storageArtefactPart(self, artefact):
+    def storeArtefact(self, artefact):
         operation = "of storing artefact"
         for key in self.chunks:
-            if self.isChunkFree(key):
+            if self.__isChunkFree(key):
                 self.chunks[key] = artefact
-                self.operationInfo(operation, True)
+                self.__operationInfo(operation, True)
                 break
         else:
-            self.operationInfo(operation, False)
+            self.__operationInfo(operation, False)
             return False
 
     def destoreArtefact(self, listOfChunks):
@@ -69,23 +63,36 @@ class StorageNode():
             for chunkNumber in listOfChunks:
                 self.chunks[chunkNumber] = ""
 
-            self.operationInfo(operation, True)
+            self.__operationInfo(operation, True)
             return True
 
         except IndexError:
-            self.operationInfo(operation, False)
+            self.__operationInfo(operation, False)
             return False
 
     def getChunkValue(self, chunkNumber):
         return self.chunks[chunkNumber]
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    # print_hi('PyCharm')
+    storage = StorageNode(1, 5, False)
+    storage.storageInfo()
+    storage.storeArtefact("fhbdjs1")
+    storage.storeArtefact("fhbdjs2")
+    storage.storeArtefact("fhbdjs3")
+    storage.storeArtefact("fhbdjs4")
+    storage.storeArtefact("fhbdjs5")
+    storage.storeArtefact("fhbdjs6")
+    storage.storeArtefact("fhbdjs7")
+    storage.storageInfo()
+    storage.damageChunk()
+    storage.storageInfo()
+    storage.storeArtefact("fhbdjs8")
+    storage.storageInfo()
+    storage.repairChunk()
+    storage.storageInfo()
+
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
