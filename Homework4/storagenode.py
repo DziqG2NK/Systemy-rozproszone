@@ -44,16 +44,18 @@ class StorageNode():
         operation = "of storing artefact"
 
         for key in self.chunks:
+            # print(key)
             if self.__isChunkFree(key):
                 self.chunks[key] = artefact
                 self.__operationInfo(operation, True)
+                # print("fdbhsfbjds", str(key))
                 return key
         else:
             self.__operationInfo(operation, False)
 
 
     def destoreArtefact(self, listOfChunks):
-        operation = "of desotring artefact"
+        operation = "of destoring artefact"
 
         try:
             for chunkNumber in listOfChunks:
@@ -76,3 +78,5 @@ class StorageNode():
                     return False
             else:
                 return True
+
+        return True
