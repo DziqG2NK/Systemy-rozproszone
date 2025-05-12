@@ -50,7 +50,7 @@ class NameNode():
                 if [storage.isFull() for storage in self.storages.values()].count(False) == 0:
                     print("No space left, removing artefact")
                     self.removeArtefact(fileName)
-                    break
+                    return
 
                 chunkInStorage = self.storages[i % n].storeArtefact(artefactPart)
 
@@ -72,24 +72,37 @@ class NameNode():
             print(self.artefacts[artefacts])
 
     def readArtefact(self, fileName):
-        n = self.artefactsLengths[fileName]
-        result = [None for _ in range(n)]
+        if fileName in self.artefacts:
+            n = self.artefactsLengths[fileName]
+            result = [None for _ in range(n)]
 
-        for i in range(self.copiesNumber):
-            for j, [storage, chunk] in enumerate(self.artefacts[fileName]):
-                if self.storages[storage].isFull:
-                    if result[j % n] == None:
-                        result[j % n] = self.storages[storage].getChunkValue(chunk)
+            for i in range(self.copiesNumber):
+                for j, [storage, chunk] in enumerate(self.artefacts[fileName]):
+                    if self.storages[storage].isFull:
+                        if result[j % n] == None:
+                            result[j % n] = self.storages[storage].getChunkValue(chunk)
 
-        artefact = ""
-        for res in result:
-            artefact = artefact + res
+            artefact = ""
+            try:
+                for res in result:
+                    artefact = artefact + res
 
-        return artefact
+                return artefact
 
+            except TypeError:
+                print("Error reading artefact")
+
+        else:
+            print(f"No record like {fileName} in base")
+
+    def damageStorage(self, storage):
+        self.storages[storage].damageStorage()
 
 def main():
-    nn = NameNode(5,5,5)
+    storagesNumber = int(input("Podaj ilość NodeStorage'y: "))
+    chunksNumber = int(input("Ilość chunków na Storage: "))
+    chunkSize = int(input("Długość stringa w chunku "))
+    nn = NameNode(storagesNumber,chunksNumber,chunkSize, 3)
 
     while True:
         print("\nDostępne operacje:")
@@ -106,37 +119,51 @@ def main():
             fileName = input("Podaj nazwę artefaktu: ")
             data = input("Podaj zawartość artefaktu: ")
             nn.storeArtefact(fileName, data)
+
         elif choice == "2":
-            nn.printStorages()
+            nn.printAll()
+
         elif choice == "3":
-            print("Odczyt artefaktu: (niezaimplementowane)")
+            fileName = input("Podaj nazwę artefaktu: ")
+            nn.readArtefact(fileName)
             pass
+
         elif choice == "4":
             fileName = input("Podaj nazwę artefaktu do usunięcia: ")
             nn.deleteArtefact(fileName)
+
         elif choice == "5":
             fileName = input("Podaj nazwę artefaktu do zmiany: ")
             newData = input("Podaj nową zawartość: ")
-            nn.updateArtefact(fileName, newData)
+            nn.modifyArtefact(fileName, newData)
+
         elif choice == "6":
             print("Zamykanie programu.")
             break
+
         else:
             print("Nieznana opcja, spróbuj ponownie.")
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    # main()
+    main()
     # # print_hi('PyCharm')
-    node = NameNode(5,5, 5, 2)
-    # print(node.divideArtefact("To jest jakiś przykładowy string !ddd"))
-    node.printAll()
-    node.storeArtefact("Przykład","To jest jakiś przykładowy string !ddd")
-    node.printAll()
-    node.modifyArtefact("Przykład", "NIC W SUMIE CIEKAWEGO")
-    node.printAll()
-    print(node.readArtefact("Przykład"))
 
+    # node = NameNode(5,5, 5, 3)
+    # # print(node.divideArtefact("To jest jakiś przykładowy string !ddd"))
+    # node.printAll()
+    # node.storeArtefact("Przykład","To jest jakiś przykładowy string !ddd")
+    # node.printAll()
+    # node.damageStorage(1)
+    # node.printAll()
+    #
+    # print(node.readArtefact("Przykład"))
+    # node.modifyArtefact("Przykład", "NIC W SUMIE CIEKAWEGO")
+    # node.printAll()
+    # node.damageStorage(3)
+    # print(node.readArtefact("Przykład"))
+
+    # print("NFHDSKFB" + None)
 
     # Testing StorageNode
     # storage = StorageNode(1, 5, False)

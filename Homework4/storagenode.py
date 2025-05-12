@@ -34,10 +34,10 @@ class StorageNode():
     def __isChunkFree(self, chunkNumber):
         return self.chunks[chunkNumber] == ""
 
-    def damageChunk(self):
+    def damageStorage(self):
         self.isDamaged = True
 
-    def repairChunk(self):
+    def repairStorage(self):
         self.isDamaged = False
 
     def storeArtefact(self, artefact):
@@ -69,7 +69,9 @@ class StorageNode():
             return False
 
     def getChunkValue(self, chunkNumber):
-        return self.chunks[chunkNumber]
+        if not self.isDamaged:
+            return self.chunks[chunkNumber]
+        return None
 
     def isFull(self):
         if not self.isDamaged:
