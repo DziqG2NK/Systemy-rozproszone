@@ -1,98 +1,88 @@
 from colorama import Fore, Style
 import ray
-
-class NameNode():
-    def __init__(self, chunks):
-        self.chunks = chunks
-        self.artefact = ""
+from storagenode import StorageNode
 
 # @ray.remote
-class StorageNode():
-    def __init__(self, storageNumber, chunksNumber, isDamaged):
-        self.storageNumber = storageNumber
-        self.chunksNumber = chunksNumber
-        self.isDamaged = isDamaged
-        self.chunks = {}
+class NameNode():
+    def __init__(self, storagesNumber, chunksNumber, chunkSize):
+        self.storages = {}
+        self.artefacts = {}
+        self.chunkSize = chunkSize
 
-        for i in range(chunksNumber):
-            self.chunks[i] = ""
+        for i in range(storagesNumber):
+            self.storages[i + 1] = StorageNode(i, chunksNumber, False)
 
-    def __operationInfo(self, operation, hasSucceded):
-        if hasSucceded:
-            print("STORAGE INFO: Operation " + Fore.BLUE + operation + Fore.WHITE + " has " + Fore.GREEN + "SUCCEEDED")
-        if not hasSucceded:
-            print("STORAGE INFO: Operation " + Fore.BLUE + operation + Fore.WHITE + " has " + Fore.RED + "FAILED")
-        print(Style.RESET_ALL)
+    def divideArtefact(self, artefact):
+        return [artefact[i : i + self.chunkSize] for i in range(0, len(artefact), self.chunkSize)]
 
-    def storageInfo(self):
-        if not self.isDamaged:
-            print(Fore.BLUE + f"Storage number {self.storageNumber} actual status:")
-            for key in self.chunks:
-                print(Style.RESET_ALL)
-                print(f"Chunk {str(key)}: {self.chunks[key]}")
-            print()
+    def isStored(self, fileName):
+        return fileName in self.artefacts
 
-        else:
-            print(Fore.BLUE + f"Storage number {self.storageNumber} is damaged!")
-            print(Style.RESET_ALL)
+    def removeArtefact(self, fileName):
+        locations = self.artefacts[fileName]
 
-    def __isChunkFree(self, chunkNumber):
-        return self.chunks[chunkNumber] == ""
+        for key in locations:
+            storageChunks = locations[key]
+            self.storages[key].destoreArtefact(storageChunks)
 
-    def damageChunk(self):
-        self.isDamaged = True
+    def storeArtefact(self, fileName, artefact):
+        self.artefacts[fileName] = {}
 
-    def repairChunk(self):
-        self.isDamaged = False
+        dividedArtefact = self.divideArtefact(artefact)
+        i = 1
+        n = len(self.storages)
 
-    def storeArtefact(self, artefact):
-        operation = "of storing artefact"
-        for key in self.chunks:
-            if self.__isChunkFree(key):
-                self.chunks[key] = artefact
-                self.__operationInfo(operation, True)
+        for artefactPart in dividedArtefact:
+            print(artefactPart)
+            if [storage.isFull() for storage in self.storages.values()].count(False) == 0:
+                # print jakis
+                print("jakis")
+                self.removeArtefact(fileName)
                 break
-        else:
-            self.__operationInfo(operation, False)
-            return False
 
-    def destoreArtefact(self, listOfChunks):
-        operation = "of desotring artefact"
+            chunkInStorage = self.storages[(i % n) + 1].storeArtefact(artefactPart)
+            if chunkInStorage is not None:
+                if chunkInStorage in self.artefacts[fileName]:  # ZMIANA LINII
+                    self.artefacts[fileName][chunkInStorage].append(chunkInStorage)  # ZMIANA LINII
+                else:
+                    self.artefacts[fileName][chunkInStorage] = []  # ZMIANA LINII
+                    self.artefacts[fileName][chunkInStorage].append(chunkInStorage)  # ZMIANA LINII
 
-        try:
-            for chunkNumber in listOfChunks:
-                self.chunks[chunkNumber] = ""
+            i += 1
 
-            self.__operationInfo(operation, True)
-            return True
+    def printAll(self):
+        for storage in self.storages.values():
+            storage.storageInfo()
 
-        except IndexError:
-            self.__operationInfo(operation, False)
-            return False
 
-    def getChunkValue(self, chunkNumber):
-        return self.chunks[chunkNumber]
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     # print_hi('PyCharm')
-    storage = StorageNode(1, 5, False)
-    storage.storageInfo()
-    storage.storeArtefact("fhbdjs1")
-    storage.storeArtefact("fhbdjs2")
-    storage.storeArtefact("fhbdjs3")
-    storage.storeArtefact("fhbdjs4")
-    storage.storeArtefact("fhbdjs5")
-    storage.storeArtefact("fhbdjs6")
-    storage.storeArtefact("fhbdjs7")
-    storage.storageInfo()
-    storage.damageChunk()
-    storage.storageInfo()
-    storage.storeArtefact("fhbdjs8")
-    storage.storageInfo()
-    storage.repairChunk()
-    storage.storageInfo()
+    node = NameNode(5,5, 5)
+    # print(node.divideArtefact("To jest jakiś przykładowy string !ddd"))
+    node.printAll()
+    node.storeArtefact("Przykład","To jest jakiś przykładowy string !ddd")
+    node.printAll()
+
+    # Testing StorageNode
+    # storage = StorageNode(1, 5, False)
+    # storage.storageInfo()
+    # storage.storeArtefact("fhbdjs1")
+    # storage.storeArtefact("fhbdjs2")
+    # storage.storeArtefact("fhbdjs3")
+    # storage.storeArtefact("fhbdjs4")
+    # storage.storeArtefact("fhbdjs5")
+    # storage.storeArtefact("fhbdjs6")
+    # storage.storeArtefact("fhbdjs7")
+    # storage.storageInfo()
+    # storage.damageChunk()
+    # storage.storageInfo()
+    # storage.storeArtefact("fhbdjs8")
+    # storage.storageInfo()
+    # storage.repairChunk()
+    # storage.storageInfo()
 
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
