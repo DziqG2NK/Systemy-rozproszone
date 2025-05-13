@@ -2,7 +2,7 @@ from colorama import Fore, Style
 import ray
 from storagenode import StorageNode
 
-# @ray.remote
+@ray.remote
 class NameNode():
     def __init__(self, storagesNumber, chunksNumber, chunkSize, copiesNumber):
         self.copiesNumber = copiesNumber
@@ -12,7 +12,7 @@ class NameNode():
         self.chunkSize = chunkSize
 
         for i in range(storagesNumber):
-            self.storages[i] = StorageNode(i, chunksNumber, False)
+            self.storages[i] = StorageNode.remote(i, chunksNumber, False)
 
     def divideArtefact(self, artefact):
         return [artefact[i : i + self.chunkSize] for i in range(0, len(artefact), self.chunkSize)]
@@ -28,7 +28,7 @@ class NameNode():
         print(list)
         for i in range(len(list)):
             if list[i]:
-                self.storages[i].destoreArtefact(list[i])
+                ray.get(self.storages[i].destoreArtefact.remote(list[i]))
 
         del self.artefacts[fileName]
         del self.artefactsLengths[fileName]
@@ -47,12 +47,12 @@ class NameNode():
 
             for artefactPart in dividedArtefact:
 
-                if [storage.isFull() for storage in self.storages.values()].count(False) == 0:
+                if ray.get([storage.isFull.remote() for storage in self.storages.values()]).count(False) == 0:
                     print("No space left, removing artefact")
                     self.removeArtefact(fileName)
                     return
 
-                chunkInStorage = self.storages[i % n].storeArtefact(artefactPart)
+                chunkInStorage = ray.get(self.storages[i % n].storeArtefact.remote(artefactPart))
 
                 if chunkInStorage is not None:
                     self.artefacts[fileName].append([i % n, chunkInStorage])
@@ -64,12 +64,16 @@ class NameNode():
         self.storeArtefact(fileName, newArtefact)
 
     def printAll(self):
+        storagesState = ""
+
         for storage in self.storages.values():
-            storage.storageInfo()
+            storagesState += ray.get(storage.storageInfo.remote())
 
         for artefacts in self.artefacts:
             print(artefacts)
             print(self.artefacts[artefacts])
+
+        print(storagesState)
 
     def readArtefact(self, fileName):
         if fileName in self.artefacts:
@@ -78,9 +82,9 @@ class NameNode():
 
             for i in range(self.copiesNumber):
                 for j, [storage, chunk] in enumerate(self.artefacts[fileName]):
-                    if self.storages[storage].isFull:
+                    if ray.get(self.storages[storage].canBeRead.remote()):
                         if result[j % n] == None:
-                            result[j % n] = self.storages[storage].getChunkValue(chunk)
+                            result[j % n] =  ray.get(self.storages[storage].getChunkValue.remote(chunk))
 
             artefact = ""
             try:
@@ -89,20 +93,26 @@ class NameNode():
 
                 return artefact
 
-            except TypeError:
+            except TypeError as e:
+                print(e)
                 print("Error reading artefact")
 
         else:
             print(f"No record like {fileName} in base")
 
     def damageStorage(self, storage):
-        self.storages[storage].damageStorage()
+        self.storages[storage].damageStorage.remote()
+
+    def repairStorage(self, storage):
+        self.storages[storage].repairStorage.remote()
 
 def main():
+    ray.init()
+
     storagesNumber = int(input("Podaj ilość NodeStorage'y: "))
     chunksNumber = int(input("Ilość chunków na Storage: "))
     chunkSize = int(input("Długość stringa w chunku "))
-    nn = NameNode(storagesNumber,chunksNumber,chunkSize, 3)
+    nn = NameNode.remote(storagesNumber,chunksNumber,chunkSize, 3)
 
     while True:
         print("\nDostępne operacje:")
@@ -111,38 +121,63 @@ def main():
         print("3 - Odczytaj artefakt (niezaimplementowane)")
         print("4 - Usuń artefakt")
         print("5 - Zmień artefakt")
-        print("6 - Wyjdź")
+        print("6 - Uszkodź storage")
+        print("7 - Napraw storage")
+        print("8 - Wyjdź")
 
-        choice = input("Wybierz opcję (1-6): ")
+        choice = input("Wybierz opcję (1-8): ")
 
         if choice == "1":
             fileName = input("Podaj nazwę artefaktu: ")
             data = input("Podaj zawartość artefaktu: ")
-            nn.storeArtefact(fileName, data)
+            ray.get(nn.storeArtefact.remote(fileName, data))
 
         elif choice == "2":
-            nn.printAll()
+            ray.get(nn.printAll.remote())
 
         elif choice == "3":
             fileName = input("Podaj nazwę artefaktu: ")
-            nn.readArtefact(fileName)
+            read_artefact = ray.get(nn.readArtefact.remote(fileName))
+            if read_artefact != None:
+                print(read_artefact)
             pass
+
 
         elif choice == "4":
             fileName = input("Podaj nazwę artefaktu do usunięcia: ")
-            nn.deleteArtefact(fileName)
+            ray.get(nn.removeArtefact.remote(fileName))
 
         elif choice == "5":
             fileName = input("Podaj nazwę artefaktu do zmiany: ")
             newData = input("Podaj nową zawartość: ")
-            nn.modifyArtefact(fileName, newData)
+            ray.get(nn.modifyArtefact.remote(fileName, newData))
 
         elif choice == "6":
+            try:
+                storage = int(input("Podaj numer storage'u do uszkodzenia: "))
+                ray.get(nn.damageStorage.remote(storage))
+                print(f"Uszkodzono storage {storage}")
+            except Exception as e:
+                print(e)
+                print("Coś poszło nie tak")
+
+        elif choice == "7":
+            try:
+                storage = int(input("Podaj numer storage'u do naprawy: "))
+                ray.get(nn.repairStorage.remote(storage))
+                print(f"Naprawiono storage {storage}")
+            except Exception as e:
+                print(e)
+                print("Coś poszło nie tak")
+
+        elif choice == "8":
             print("Zamykanie programu.")
             break
 
         else:
             print("Nieznana opcja, spróbuj ponownie.")
+
+    ray.shutdown()
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 from colorama import Fore, Style
-# import ray
+import ray
 
-# @ray.remote
+@ray.remote
 class StorageNode():
     def __init__(self, storageNumber, chunksNumber, isDamaged):
         self.storageNumber = storageNumber
@@ -20,16 +20,18 @@ class StorageNode():
         print(Style.RESET_ALL)
 
     def storageInfo(self):
-        if not self.isDamaged:
-            print(Fore.BLUE + f"Storage number {self.storageNumber} actual status:")
-            for key in self.chunks:
-                print(Style.RESET_ALL)
-                print(f"Chunk {str(key)}: {self.chunks[key]}")
-            print()
+        info = ""
 
+        if not self.isDamaged:
+            info += Fore.BLUE + f"Storage number {self.storageNumber} actual status:\n"
+            for key in self.chunks:
+                info += Style.RESET_ALL + f"Chunk {str(key)}: {self.chunks[key]}\n"
+            info += "\n"
         else:
-            print(Fore.BLUE + f"Storage number {self.storageNumber} is damaged!")
-            print(Style.RESET_ALL)
+            info += Fore.BLUE + f"Storage number {self.storageNumber} is damaged!\n"
+            info += Style.RESET_ALL
+
+        return info
 
     def __isChunkFree(self, chunkNumber):
         return self.chunks[chunkNumber] == ""
@@ -82,3 +84,6 @@ class StorageNode():
                 return True
 
         return True
+
+    def canBeRead(self):
+        return not self.isDamaged
