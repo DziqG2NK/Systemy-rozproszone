@@ -2,8 +2,8 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Supplier {
-    private static String supplierName;
-    private static ArrayList<String> supplierProducts;
+    private String supplierName;
+    private ArrayList<String> supplierProducts;
 
     public Supplier(String supplierName) {
         this.supplierName = supplierName;
@@ -15,8 +15,8 @@ public class Supplier {
     }
 
     public void getInfoAboutProducts() {
-        System.out.println("\nSupplier name: " + supplierName + "\n" + "Supplier products: \n");
-        for (String supplierProduct : supplierProducts) {
+        System.out.println("\nSupplier name: " + this.supplierName + "\n" + "Supplier products: \n");
+        for (String supplierProduct : this.supplierProducts) {
             System.out.println("- " + supplierProduct);
         }
     }
